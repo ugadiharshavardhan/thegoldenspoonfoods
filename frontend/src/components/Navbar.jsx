@@ -4,10 +4,12 @@ import { HiMenu, HiX } from 'react-icons/hi'
 import { useNavigate } from 'react-router'
 import Cookies from 'js-cookie'
 import toast from 'react-hot-toast'
+import { useCart } from '../context/CartContext'
 
 function Navbar() {
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
+  const { cartCount } = useCart()
 
   const handleHome = () => {
     navigate("/", { replace: true })
@@ -46,6 +48,11 @@ function Navbar() {
           </li>
           <li onClick={handleCart} className="cursor-pointer hover:text-orange-500 transition relative flex items-center">
             Cart
+            {cartCount > 0 && (
+              <span className="ml-1 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {cartCount}
+              </span>
+            )}
           </li>
           <li onClick={handleAccount} className="cursor-pointer hover:text-orange-500 transition">
             Account
@@ -67,8 +74,13 @@ function Navbar() {
           <li onClick={handleHome} className="cursor-pointer hover:text-orange-500 transition">
             Home
           </li>
-          <li onClick={handleCart} className="cursor-pointer hover:text-orange-500 transition">
+          <li onClick={handleCart} className="cursor-pointer hover:text-orange-500 transition relative flex items-center">
             Cart
+            {cartCount > 0 && (
+              <span className="ml-1 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {cartCount}
+              </span>
+            )}
           </li>
           <li onClick={handleAccount} className="cursor-pointer hover:text-orange-500 transition">
             Account

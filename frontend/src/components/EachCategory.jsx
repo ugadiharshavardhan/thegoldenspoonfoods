@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import Loading from "./Loading"
 import Cookies from "js-cookie"
+import { useCart } from "../context/CartContext"
 
 
 function EachCategory() {
@@ -11,6 +12,7 @@ function EachCategory() {
   const [quantities, setQuantities] = useState({})
   const [sortedData, setSortedData] = useState(itemData)
   const [apiError, setApiError] = useState(false)
+  const { fetchCartCount, addToCartCount } = useCart()
 
   // ---------------- FETCH ITEMS & CART ----------------
   useEffect(() => {
@@ -18,7 +20,7 @@ function EachCategory() {
       setApiError(false)
       try {
         // 1. Fetch products for this category
-        const itemsRes = await fetch(`https://thegoldenspoon.onrender.com/items/${item}`)
+        const itemsRes = await fetch(`https://thegoldenspoonfoods.onrender.com/items/${item}`)
         if (!itemsRes.ok) {
           throw new Error("Failed to fetch items")
         }
@@ -26,7 +28,7 @@ function EachCategory() {
 
         // 2. Fetch current cart to sync quantities
         const token = Cookies.get("jwt_token")
-        const cartRes = await fetch("https://thegoldenspoon.onrender.com/api/cartitems", {
+        const cartRes = await fetch("https://thegoldenspoonfoods.onrender.com/api/cartitems", {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -85,7 +87,7 @@ function EachCategory() {
 
     const token = Cookies.get("jwt_token")
     try {
-      await fetch("https://thegoldenspoon.onrender.com/api/addtocart", {
+      await fetch("https://thegoldenspoonfoods.onrender.com/api/addtocart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -95,6 +97,8 @@ function EachCategory() {
       })
     } catch (error) {
       console.error("Cart update error:", error)
+    } finally {
+      // fetchCartCount() // Removed to rely on optimistic update
     }
   }
 
@@ -104,6 +108,7 @@ function EachCategory() {
       ...prev,
       [each.idMeal]: (prev[each.idMeal] || 0) + 1
     }))
+    addToCartCount(1) // Optimistic update
     await updateCart(each, 1)
   }
 
@@ -118,6 +123,7 @@ function EachCategory() {
       [each.idMeal]: newQty
     }))
 
+    addToCartCount(-1) // Optimistic update
     await updateCart(each, -1)
   }
 
@@ -145,6 +151,7 @@ function EachCategory() {
       ...prev,
       [each.idMeal]: 1
     }))
+    addToCartCount(1) // Optimistic update
     await updateCart(each, 1)
   }
 

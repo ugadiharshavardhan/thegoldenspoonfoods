@@ -12,7 +12,7 @@ function OrdersList() {
         const fetchOrders = async () => {
             try {
                 const token = Cookies.get("jwt_token")
-                const response = await fetch("https://thegoldenspoon.onrender.com/api/orders", {
+                const response = await fetch("https://thegoldenspoonfoods.onrender.com/api/orders", {
                     method: "GET",
                     headers: {
                         "Authorization": `Bearer ${token}`
