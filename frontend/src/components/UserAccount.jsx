@@ -17,7 +17,7 @@ function UserAccount() {
           return
         }
 
-        const response = await fetch("https://thegoldenspoon.onrender.com/user/details", {
+        const response = await fetch("https://thegoldenspoonfoods.onrender.com/user/details", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

@@ -10,7 +10,7 @@ function Login() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', otp: '', newPassword: '' })
   const navigate = useNavigate()
 
-  const API_URL = "https://thegoldenspoon.onrender.com/api"
+  const API_URL = "https://thegoldenspoonfoods.onrender.com/api"
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })

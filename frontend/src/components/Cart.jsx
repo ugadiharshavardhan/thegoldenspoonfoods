@@ -3,17 +3,19 @@ import { useNavigate } from "react-router"
 import Cookies from "js-cookie"
 import toast from "react-hot-toast"
 import Loading from "./Loading"
+import { useCart } from "../context/CartContext"
 
 function Cart() {
   const navigate = useNavigate()
   const [cartItems, setCartItems] = useState([])
   const [loading, setLoading] = useState(true)
+  const { fetchCartCount, addToCartCount } = useCart()
 
   useEffect(() => {
     const getCart = async () => {
       try {
         const token = Cookies.get("jwt_token")
-        const response = await fetch("https://thegoldenspoon.onrender.com/api/cartitems", {
+        const response = await fetch("https://thegoldenspoonfoods.onrender.com/api/cartitems", {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -53,18 +55,28 @@ function Cart() {
 
   const handleRemove = async (id) => {
     // Optimistic Update
+    const itemToRemove = cartItems.find(item => item._id === id)
+    if (itemToRemove) {
+      addToCartCount(-itemToRemove.quantity)
+    }
     setCartItems((prev) => prev.filter((item) => item._id !== id))
 
     // Background API Call
     try {
       const token = Cookies.get("jwt_token")
-      await fetch(`https://thegoldenspoon.onrender.com/api/delete/${id}`, {
+      await fetch(`https://thegoldenspoonfoods.onrender.com/api/delete/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`
         }
       })
       toast.success("Item removed from cart")
+      // Calculate quantity to remove from global count
+      const itemToRemove = cartItems.find(item => item._id === id)
+      if (itemToRemove) {
+        addToCartCount(-itemToRemove.quantity)
+      }
+      fetchCartCount() // Sync just in case
     } catch (error) {
       console.error("Remove failed", error)
       toast.error("Failed to remove item")
@@ -81,6 +93,7 @@ function Cart() {
           : item
       )
     )
+    addToCartCount(1)
 
     // 2. Background API Call
     const item = cartItems.find(i => i._id === id)
@@ -88,7 +101,7 @@ function Cart() {
 
     try {
       const token = Cookies.get("jwt_token")
-      await fetch("https://thegoldenspoon.onrender.com/api/addtocart", {
+      await fetch("https://thegoldenspoonfoods.onrender.com/api/addtocart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,6 +114,7 @@ function Cart() {
           quantity: 1
         })
       })
+      fetchCartCount() // Update global count
     } catch (error) {
       console.error("Increase failed", error)
       // Revert quantity if needed
@@ -117,6 +131,7 @@ function Cart() {
           : item
       )
     )
+    addToCartCount(-1)
 
     // 2. Background API Call
     const item = cartItems.find(i => i._id === id)
@@ -124,7 +139,7 @@ function Cart() {
 
     try {
       const token = Cookies.get("jwt_token")
-      await fetch("https://thegoldenspoon.onrender.com/api/addtocart", {
+      await fetch("https://thegoldenspoonfoods.onrender.com/api/addtocart", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -137,6 +152,7 @@ function Cart() {
           quantity: -1
         })
       })
+      fetchCartCount() // Update global count
     } catch (error) {
       console.error("Decrease failed", error)
       // Revert logic would go here
@@ -256,7 +272,7 @@ function Cart() {
                     const token = Cookies.get("jwt_token")
 
                     // 1. Create Razorpay Order
-                    const orderRes = await fetch("https://thegoldenspoon.onrender.com/create-order", {
+                    const orderRes = await fetch("https://thegoldenspoonfoods.onrender.com/create-order", {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ amount: ordertotal })
@@ -278,7 +294,7 @@ function Cart() {
                       order_id: orderData.id,
                       handler: async function (response) {
                         // 3. Verify Payment
-                        const verifyRes = await fetch("https://thegoldenspoon.onrender.com/verify-payment", {
+                        const verifyRes = await fetch("https://thegoldenspoonfoods.onrender.com/verify-payment", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify(response)
@@ -287,7 +303,7 @@ function Cart() {
 
                         if (verifyData.success) {
                           // 4. Save Order to Backend
-                          const orderResponse = await fetch("https://thegoldenspoon.onrender.com/api/orders", {
+                          const orderResponse = await fetch("https://thegoldenspoonfoods.onrender.com/api/orders", {
                             method: "POST",
                             headers: {
                               "Content-Type": "application/json",
@@ -302,7 +318,7 @@ function Cart() {
 
                           if (orderResponse.ok) {
                             // 5. Clear Cart
-                            const res = await fetch("https://thegoldenspoon.onrender.com/api/clear-cart", {
+                            const res = await fetch("https://thegoldenspoonfoods.onrender.com/api/clear-cart", {
                               method: "DELETE",
                               headers: {
                                 "Authorization": `Bearer ${token}`
@@ -310,6 +326,13 @@ function Cart() {
                             })
                             if (res.ok) {
                               toast.success("Order placed successfully!")
+                              // We can set it to 0 or fetch. Since we navigate away, fetch is fine, but setting 0 is faster.
+                              // But we don't have setCartCount exposed directly as such, but we have fetchCartCount.
+                              // Actually, we do have setCartCount exposed ? let's check context.
+                              // Yes, setCartCount IS exposed.
+                              // Let's use fetchCartCount for correctness as it empties on backend.
+                              fetchCartCount()
+                              setCartCount(0) // Immediate reset
                               navigate("/", { replace: true })
                             }
                           } else {
