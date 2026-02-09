@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { useParams } from "react-router"
+import { Link, useParams } from 'react-router'
+import { BACKEND_URL } from '../config'
 import Loading from "./Loading"
 import Cookies from "js-cookie"
 import { useCart } from "../context/CartContext"
@@ -18,9 +19,11 @@ function EachCategory() {
   useEffect(() => {
     const fetchAllData = async () => {
       setApiError(false)
+      let cartItems = []
+
       try {
         // 1. Fetch products for this category
-        const itemsRes = await fetch(`https://thegoldenspoonfoods.onrender.com/items/${item}`)
+        const itemsRes = await fetch(`${BACKEND_URL}/items/${item}`)
         if (!itemsRes.ok) {
           throw new Error("Failed to fetch items")
         }
@@ -28,16 +31,25 @@ function EachCategory() {
 
         // 2. Fetch current cart to sync quantities
         const token = Cookies.get("jwt_token")
-        const cartRes = await fetch("https://thegoldenspoonfoods.onrender.com/api/cartitems", {
-          headers: {
-            "Authorization": `Bearer ${token}`
+
+        if (token) {
+          try {
+            const cartRes = await fetch(`${BACKEND_URL}/api/cartitems`, {
+              headers: {
+                "Authorization": `Bearer ${token}`
+              }
+            })
+            if (!cartRes.ok) {
+              throw new Error("Failed to fetch cart")
+            }
+            const cartData = await cartRes.json()
+            cartItems = cartData.fooditems || []
+          } catch (error) {
+            console.error("Failed to fetch cart, proceeding without cart data:", error)
+            // Optionally, set an error state specific to cart fetching or just log
+
           }
-        })
-        if (!cartRes.ok) {
-          throw new Error("Failed to fetch cart")
         }
-        const cartData = await cartRes.json()
-        const cartItems = cartData.fooditems || []
 
         // 3. Create a map of itemName -> quantity
         const qtyMap = {}
@@ -87,7 +99,7 @@ function EachCategory() {
 
     const token = Cookies.get("jwt_token")
     try {
-      await fetch("https://thegoldenspoonfoods.onrender.com/api/addtocart", {
+      await fetch(`${BACKEND_URL}/api/addtocart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import { BACKEND_URL } from '../config';
 
 const CartContext = createContext();
 
@@ -18,7 +19,7 @@ export const CartProvider = ({ children }) => {
                 return;
             }
 
-            const response = await fetch("https://thegoldenspoonfoods.onrender.com/api/cartitems", {
+            const response = await fetch(`${BACKEND_URL}/api/cartitems`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }

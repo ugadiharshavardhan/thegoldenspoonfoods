@@ -4,18 +4,19 @@ import Cookies from "js-cookie"
 import toast from "react-hot-toast"
 import Loading from "./Loading"
 import { useCart } from "../context/CartContext"
+import { BACKEND_URL } from '../config'
 
 function Cart() {
   const navigate = useNavigate()
   const [cartItems, setCartItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const { fetchCartCount, addToCartCount } = useCart()
+  const { fetchCartCount, addToCartCount, setCartCount } = useCart()
 
   useEffect(() => {
     const getCart = async () => {
       try {
         const token = Cookies.get("jwt_token")
-        const response = await fetch("https://thegoldenspoonfoods.onrender.com/api/cartitems", {
+        const response = await fetch(`${BACKEND_URL}/api/cartitems`, {
           headers: {
             "Authorization": `Bearer ${token}`
           }
@@ -64,7 +65,7 @@ function Cart() {
     // Background API Call
     try {
       const token = Cookies.get("jwt_token")
-      await fetch(`https://thegoldenspoonfoods.onrender.com/api/delete/${id}`, {
+      await fetch(`${BACKEND_URL}/api/delete/${id}`, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`
@@ -73,9 +74,13 @@ function Cart() {
       toast.success("Item removed from cart")
       // Calculate quantity to remove from global count
       const itemToRemove = cartItems.find(item => item._id === id)
-      if (itemToRemove) {
-        addToCartCount(-itemToRemove.quantity)
+      if (!itemToRemove) { // If item was already removed optimistically, find it in the original cartItems
+        // This case should ideally not happen if optimistic update is correct, but good for robustness
+        // Or, if the item was not found in the current state, we might need to re-fetch cart count
+        fetchCartCount()
       }
+      // If itemToRemove was found and its quantity was already subtracted, no need to do it again.
+      // The fetchCartCount() call below will ensure consistency.
       fetchCartCount() // Sync just in case
     } catch (error) {
       console.error("Remove failed", error)
@@ -101,7 +106,7 @@ function Cart() {
 
     try {
       const token = Cookies.get("jwt_token")
-      await fetch("https://thegoldenspoonfoods.onrender.com/api/addtocart", {
+      await fetch(`${BACKEND_URL}/api/addtocart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -139,7 +144,7 @@ function Cart() {
 
     try {
       const token = Cookies.get("jwt_token")
-      await fetch("https://thegoldenspoonfoods.onrender.com/api/addtocart", {
+      await fetch(`${BACKEND_URL}/api/addtocart`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -272,7 +277,7 @@ function Cart() {
                     const token = Cookies.get("jwt_token")
 
                     // 1. Create Razorpay Order
-                    const orderRes = await fetch("https://thegoldenspoonfoods.onrender.com/create-order", {
+                    const orderRes = await fetch(`${BACKEND_URL}/create-order`, {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
                       body: JSON.stringify({ amount: ordertotal })
@@ -294,7 +299,7 @@ function Cart() {
                       order_id: orderData.id,
                       handler: async function (response) {
                         // 3. Verify Payment
-                        const verifyRes = await fetch("https://thegoldenspoonfoods.onrender.com/verify-payment", {
+                        const verifyRes = await fetch(`${BACKEND_URL}/verify-payment`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify(response)
@@ -303,7 +308,7 @@ function Cart() {
 
                         if (verifyData.success) {
                           // 4. Save Order to Backend
-                          const orderResponse = await fetch("https://thegoldenspoonfoods.onrender.com/api/orders", {
+                          const orderResponse = await fetch(`${BACKEND_URL}/api/orders`, {
                             method: "POST",
                             headers: {
                               "Content-Type": "application/json",
@@ -318,7 +323,7 @@ function Cart() {
 
                           if (orderResponse.ok) {
                             // 5. Clear Cart
-                            const res = await fetch("https://thegoldenspoonfoods.onrender.com/api/clear-cart", {
+                            const res = await fetch(`${BACKEND_URL}/api/clear-cart`, {
                               method: "DELETE",
                               headers: {
                                 "Authorization": `Bearer ${token}`

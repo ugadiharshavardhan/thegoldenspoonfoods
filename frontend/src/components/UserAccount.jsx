@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router'
-import toast from 'react-hot-toast'
+import toast, { Toaster } from 'react-hot-toast'
+import { BACKEND_URL } from '../config'
 
 function UserAccount() {
   const [userDetails, setUserDetails] = useState(null)
@@ -17,7 +18,7 @@ function UserAccount() {
           return
         }
 
-        const response = await fetch("https://thegoldenspoonfoods.onrender.com/user/details", {
+        const response = await fetch(`${BACKEND_URL}/user/details`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

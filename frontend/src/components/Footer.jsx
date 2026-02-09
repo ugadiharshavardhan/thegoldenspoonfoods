@@ -7,7 +7,7 @@ import { TbSquareRoundedLetterP } from 'react-icons/tb'
 function Footer() {
   return (
     <footer className="bg-[#0F172A] text-white min-h-[40vh] flex flex-col items-center justify-center text-center px-4 sm:px-8">
-      
+
       {/* Logo */}
       <PiChefHatFill className="text-4xl sm:text-5xl mb-3" />
 
@@ -28,10 +28,18 @@ function Footer() {
 
       {/* Social Icons */}
       <div className="flex gap-4 sm:gap-6">
-        <FaInstagram className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
-        <CiTwitter className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
-        <CiFacebook className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
-        <TbSquareRoundedLetterP className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
+        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
+          <FaInstagram className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
+        </a>
+        <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer">
+          <CiTwitter className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
+        </a>
+        <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
+          <CiFacebook className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
+        </a>
+        <a href="https://www.pinterest.com" target="_blank" rel="noopener noreferrer">
+          <TbSquareRoundedLetterP className="text-xl sm:text-2xl cursor-pointer hover:text-orange-500 transition" />
+        </a>
       </div>
     </footer>
   )
