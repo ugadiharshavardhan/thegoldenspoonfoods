@@ -12,6 +12,7 @@ function Login() {
   const [view, setView] = useState('LOGIN')
   const [formData, setFormData] = useState({ name: '', email: '', password: '', otp: '', newPassword: '' })
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate()
 
   const API_URL = `${BACKEND_URL}/api`
@@ -24,6 +25,7 @@ function Login() {
     e.preventDefault()
     if (!formData.email || !formData.password) return toast.error("Please fill in all fields")
 
+    setLoading(true)
     try {
       const response = await fetch(`${API_URL}/signin`, {
         method: "POST",
@@ -40,6 +42,8 @@ function Login() {
       }
     } catch (error) {
       toast.error("Something went wrong.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -48,6 +52,7 @@ function Login() {
     if (!formData.name || !formData.email || !formData.password) return toast.error("Please fill in all fields")
     if (formData.password.length < 6) return toast.error("Password too short")
 
+    setLoading(true)
     try {
       const response = await fetch(`${API_URL}/signup`, {
         method: "POST",
@@ -69,6 +74,8 @@ function Login() {
       }
     } catch (error) {
       toast.error("Signup failed")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -78,6 +85,7 @@ function Login() {
     e.preventDefault()
     if (!formData.email) return toast.error("Please enter email")
 
+    setLoading(true)
     try {
       const res = await fetch(`${API_URL}/forgot-password`, {
         method: "POST",
@@ -93,6 +101,8 @@ function Login() {
       }
     } catch (error) {
       toast.error("Error sending OTP")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -100,6 +110,7 @@ function Login() {
     e.preventDefault()
     if (!formData.otp) return toast.error("Enter OTP")
 
+    setLoading(true)
     try {
       const res = await fetch(`${API_URL}/verify-otp`, {
         method: "POST",
@@ -115,6 +126,8 @@ function Login() {
       }
     } catch (error) {
       toast.error("Verification failed")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -122,6 +135,7 @@ function Login() {
     e.preventDefault()
     if (!formData.newPassword || formData.newPassword.length < 6) return toast.error("Password must be 6+ chars")
 
+    setLoading(true)
     try {
       const res = await fetch(`${API_URL}/reset-password`, {
         method: "POST",
@@ -138,6 +152,8 @@ function Login() {
       }
     } catch (error) {
       toast.error("Error resetting password")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -245,19 +261,29 @@ function Login() {
 
             {/* ACTION BUTTONS */}
             {view === 'LOGIN' && (
-              <button onClick={handleLogin} className="w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all">Sign In</button>
+              <button onClick={handleLogin} disabled={loading} className={`w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                {loading ? 'Loading...' : 'Sign In'}
+              </button>
             )}
             {view === 'SIGNUP' && (
-              <button onClick={handleSignup} className="w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all">Create Account</button>
+              <button onClick={handleSignup} disabled={loading} className={`w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                {loading ? 'Loading...' : 'Create Account'}
+              </button>
             )}
             {view === 'FORGOT_EMAIL' && (
-              <button onClick={sendOtp} className="w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all">Send OTP</button>
+              <button onClick={sendOtp} disabled={loading} className={`w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                {loading ? 'Loading...' : 'Send OTP'}
+              </button>
             )}
             {view === 'FORGOT_OTP' && (
-              <button onClick={verifyOtp} className="w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all">Verify OTP</button>
+              <button onClick={verifyOtp} disabled={loading} className={`w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                {loading ? 'Loading...' : 'Verify OTP'}
+              </button>
             )}
             {view === 'RESET_PASSWORD' && (
-              <button onClick={resetPassword} className="w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all">Reset Password</button>
+              <button onClick={resetPassword} disabled={loading} className={`w-full py-3.5 bg-orange-500 text-white font-bold rounded-xl shadow-lg hover:bg-orange-600 transition-all ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                {loading ? 'Loading...' : 'Reset Password'}
+              </button>
             )}
 
           </form>
