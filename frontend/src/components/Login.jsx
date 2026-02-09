@@ -1,16 +1,20 @@
 import React, { useState } from 'react'
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router'
 import toast, { Toaster } from 'react-hot-toast'
 import loginBg from '../assets/login_background.png'
 
+import { BACKEND_URL } from '../config'
+
 function Login() {
   // Views: 'LOGIN', 'SIGNUP', 'FORGOT_EMAIL', 'FORGOT_OTP', 'RESET_PASSWORD'
   const [view, setView] = useState('LOGIN')
   const [formData, setFormData] = useState({ name: '', email: '', password: '', otp: '', newPassword: '' })
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate()
 
-  const API_URL = "https://thegoldenspoonfoods.onrender.com/api"
+  const API_URL = `${BACKEND_URL}/api`
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -191,7 +195,24 @@ function Login() {
 
             {/* LOGIN / SIGNUP: Password */}
             {(view === 'LOGIN' || view === 'SIGNUP') && (
-              <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Password" className="w-full px-5 py-3.5 bg-white/80 border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800" required />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Password"
+                  className="w-full px-5 py-3.5 bg-white/80 border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-500 focus:outline-none"
+                >
+                  {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                </button>
+              </div>
             )}
 
             {/* OTP Input */}
@@ -201,7 +222,24 @@ function Login() {
 
             {/* New Password Input */}
             {view === 'RESET_PASSWORD' && (
-              <input type="password" name="newPassword" value={formData.newPassword} onChange={handleChange} placeholder="New Password" className="w-full px-5 py-3.5 bg-white/80 border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800" required />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="newPassword"
+                  value={formData.newPassword}
+                  onChange={handleChange}
+                  placeholder="New Password"
+                  className="w-full px-5 py-3.5 bg-white/80 border border-white/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 text-gray-800 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-orange-500 focus:outline-none"
+                >
+                  {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                </button>
+              </div>
             )}
 
 

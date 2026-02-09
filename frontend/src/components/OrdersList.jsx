@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Cookies from 'js-cookie'
+import { BACKEND_URL } from '../config'
 import { useNavigate } from 'react-router'
 import { PiChefHatFill } from 'react-icons/pi'
 
@@ -12,8 +13,7 @@ function OrdersList() {
         const fetchOrders = async () => {
             try {
                 const token = Cookies.get("jwt_token")
-                const response = await fetch("https://thegoldenspoonfoods.onrender.com/api/orders", {
-                    method: "GET",
+                const response = await fetch(`${BACKEND_URL}/api/orders`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     }
