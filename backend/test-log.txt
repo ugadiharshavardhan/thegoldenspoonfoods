@@ -1,0 +1,2 @@
+Welcome email result: true
+OTP email result: true
